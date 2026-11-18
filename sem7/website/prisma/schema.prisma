@@ -1,0 +1,47 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Doctor {
+  id             String   @id @default(cuid())
+  clerkUserId    String?  @unique
+  name           String
+  specialization String
+  available      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  cases Case[]
+}
+
+model Case {
+  id              String   @id @default(cuid())
+  status          String   @default("pending")
+  symptomsJson    String
+  predictedDisease String
+  confidence      Float
+  top3Json        String
+  confirmedDisease String?
+  doctorNote      String?
+  doctorId        String?
+  doctor          Doctor?  @relation(fields: [doctorId], references: [id])
+  patientName     String   @default("Anonymous Patient")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Prediction {
+  id         String   @id @default(cuid())
+  userId     String?
+  disease    String
+  confidence String?
+  inputData  Json
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
